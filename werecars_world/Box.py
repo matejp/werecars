@@ -38,8 +38,8 @@ class BoxGrid:
 		self.m_data[x + self.m_x * (y + self.m_y * z)] = val
 
 	def getVicinity(self, x_, y_, z_):
-		Log.log("getVicinity", '----------------------------------------------------------')
-		Log.log("getVicinity", "%d,%d,%d" % (x_,y_,z_))
+		# Log.log("getVicinity", '----------------------------------------------------------')
+		# Log.log("getVicinity", "%d,%d,%d" % (x_,y_,z_))
 		x, y, z = self.m_trans(x_, y_, z_)
 		ret = []
 		for i in [x-1, x, x+1]:
@@ -51,7 +51,7 @@ class BoxGrid:
 						if self.getBox(i, j, k+1) == 0:
 							box['topmost'] = 1
 						box['x'], box['y'], box['z'] = self.m_itrans(i, j, k)
-						Log.log("getVicinity", box)
+						# Log.log("getVicinity", box)
 						ret.append(box)
 						
 		return ret

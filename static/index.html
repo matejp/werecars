@@ -27,7 +27,8 @@
 // = Nastavitve za igro in 3D pogon =
 // ==================================
 var config = [];
-config.ws_server_address = 'ws://localhost:8888/werecars-ws';
+config.server_ip = 'localhost';
+config.ws_server_address = 'ws://'+config.server_ip+':8888/werecars-ws';
 config.show_debug = true;
 config.show_fps = true;
 
@@ -465,22 +466,22 @@ function sendKeyState() {
     
     var new_key_state = {};
     var len = 0;
-    // if(key_space==1) {new_key_state.jump=1; len++;};
-    // if(key_up==1) {new_key_state.up=1; len++;};
-    // if(key_down==1) {new_key_state.down=1; len++;};
-    // // if(key_left==1) {new_key_state.left=1; len++;};
-    // // if(key_right==1) {new_key_state.right=1; len++;};
-    // 
-    // // FIX: need fixing
-    // if(key_left==1) {new_key_state.right=1; len++;};
-    // if(key_right==1) {new_key_state.left=1; len++;};
-    // 
-    // // if(len > 0) {
-    //     order = {type:'key-state', id:my_id, data:new_key_state};
-    //     json_order = JSON.stringify(order);
-    //     log('< '+json_order);
-    //     ws.send(json_order);
-    // // }
+    if(key_space==1) {new_key_state.jump=1; len++;};
+    if(key_up==1) {new_key_state.up=1; len++;};
+    if(key_down==1) {new_key_state.down=1; len++;};
+    // if(key_left==1) {new_key_state.left=1; len++;};
+    // if(key_right==1) {new_key_state.right=1; len++;};
+    
+    // FIX: need fixing
+    if(key_left==1) {new_key_state.right=1; len++;};
+    if(key_right==1) {new_key_state.left=1; len++;};
+    
+    // if(len > 0) {
+        order = {type:'key-state', id:my_id, data:new_key_state};
+        json_order = JSON.stringify(order);
+        log('< '+json_order);
+        ws.send(json_order);
+    // }
     
     key_state = new_key_state;
 }

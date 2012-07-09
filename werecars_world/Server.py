@@ -78,7 +78,7 @@ class Server:
         
         # Konstante
         self.m_floorDistance = 1
-        self.m_rotation_factor = 10
+        self.m_rotation_factor = 20
         self.m_carHeight = 1
         self.m_carRadius = 3
         self.m_carSize = self.m_carRadius * 2
