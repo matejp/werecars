@@ -15,6 +15,7 @@
 		</canvas>
 	</div>
 	<div id="fps"></div>
+	<div id="fps-data"></div>
 	<div id="scores"></div>
 	<div id="my-car-data"></div>
 	<div id="debug">
@@ -27,7 +28,7 @@
 // = Nastavitve za igro in 3D pogon =
 // ==================================
 var config = [];
-config.server_ip = 'localhost';
+config.server_ip = '192.168.0.4';
 config.ws_server_address = 'ws://'+config.server_ip+':8888/werecars-ws';
 config.show_debug = true;
 config.show_fps = true;
@@ -65,7 +66,11 @@ var engine = startCopperLichtFromFile('3darea', 'static/copperlichtdata/nova_sce
     cubeCollisionPosition = null,
     startTime = new Date(),
     count = 0,
-    frameTimes = 0;
+    frameTimes = 0,
+    startTimeSent = null,
+    countSent = 0,
+    dataTimesSent = 0;
+var html_fps_data = $("#fps-data")
 
 
 var html_fps = null;
@@ -80,11 +85,11 @@ engine.OnAfterDrawAll = function () {
         frameTimes += diff;
         count++;
 
-        if (count === 10) {
-            html_fps.html("FPS: " + frameTimes / 10);
-            frameTimes = 0;
-            count = 0;
-        }
+            if (count === 10) {
+                html_fps.html("FPS: " + frameTimes / 10);
+                frameTimes = 0;
+                count = 0;
+            }
             startTime = startTimeNow;
         } else {
             html_fps.innerHTML = "";
@@ -211,7 +216,8 @@ engine.OnLoadingComplete = function () {
             // scene.getSceneNodeFromName('car1');
             log('createCar');
             
-            var carNode = scene.getSceneNodeFromName('car' + (car.type+1)).createClone(scene.getRootSceneNode());
+            var carNode = scene.getSceneNodeFromName('car' + (Math.floor((Math.random()*3)+1.5))).createClone(scene.getRootSceneNode());
+            // var carNode = scene.getSceneNodeFromName('car' + (car.type+1)).createClone(scene.getRootSceneNode());
             carNode.Pos.X = car.x;
             carNode.Pos.Y = car.z; // - 2;
             carNode.Pos.Z = car.y;
@@ -260,6 +266,27 @@ engine.OnLoadingComplete = function () {
             ws.onmessage = function (e) {
                 var data = e.data;
                 log('> ' + data);
+                
+                if (config.show_fps === true) {
+                    startTimeSentNow = new Date().getTime();
+                    var diff = startTimeSentNow - startTimeSent;
+                    log('Time delay: ' + diff);
+                
+                    dataTimesSent += diff;
+                    countSent++;
+
+                    if (countSent === 10) {
+                        var avg_delat = dataTimesSent/countSent;
+                        html_fps_data.html("FPS: " + Math.floor(1000/avg_delat) + " delay: "+avg_delat);
+                        dataTimesSent = 0;
+                        countSent = 0;
+                    }
+                    startTimeSent = startTimeSentNow;
+                } else {
+                    html_fps_data.innerHTML = "";
+                }
+                
+                
                 try {
                     json = jQuery.parseJSON( e.data );
                     switch(json.type) {
@@ -456,8 +483,9 @@ document.onkeyup = function(event)
 //= Timer for sending new data =
 //==============================
 var sendKeyStateInterval = setInterval(function() {
+    startTimeSent = new Date().getTime(); // za štopanje odzivnega časa
     sendKeyState();
-}, 200);
+}, 100); // pošlji podatke vsakih 00ms => 10x na sekundo
 
 function sendKeyState() {
     if(ws.readyState > ws.OPEN) {

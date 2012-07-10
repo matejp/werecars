@@ -49,6 +49,8 @@ var addressBox = null;
 var logBox = null;
 var messageBox = null;
 
+var startTime = null;
+
 function addToLog(log) {
   logBox.value += log + '\n'
   // Large enough to keep showing the latest message.
@@ -59,6 +61,8 @@ function clearLog() {
 }
 
 function send() {
+  // record start time
+  startTime = new Date();
   socket.send(messageBox.value);
   addToLog('> ' + messageBox.value);
   messageBox.value = '';
@@ -71,7 +75,12 @@ function connect() {
     addToLog('Opened');
   };
   socket.onmessage = function (event) {
+    // later record end time
+    var endTime = new Date();
     addToLog('< ' + event.data);
+    
+    var timeDiff = endTime - startTime;
+    addToLog('time: ' + timeDiff + ' ms delay -> ' + 1000/timeDiff + '/s');
   };
   socket.onerror = function () {
     addToLog('Error');
