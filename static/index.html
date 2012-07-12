@@ -6,6 +6,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
 	<script type="text/javascript" src="static/lib/jquery-1.6.2.js"></script>
 	<script type="text/javascript" src="static/lib/apprise-1.5.min.js"></script>
+	<script type="text/javascript" src="static/lib/jquery-werecars.js"></script>
     <link rel="stylesheet" href="static/apprise.min.css" type="text/css" />
     <link rel="stylesheet" href="static/werecars.css" type="text/css" media="screen" title="main css file" charset="utf-8">
 </head>
@@ -29,6 +30,11 @@
 // ==================================
 var config = [];
 config.server_ip = '192.168.0.4';
+var serverip = $.urlParam('serverip');
+if(serverip) {
+	config.server_ip = serverip;
+}
+
 config.ws_server_address = 'ws://'+config.server_ip+':8888/werecars-ws';
 config.show_debug = true;
 config.show_fps = true;
