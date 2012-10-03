@@ -2,18 +2,20 @@
 <head>
     <title>Werecars</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
+	<link href='http://fonts.googleapis.com/css?family=Nosifer&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="static/style/apprise.min.css" type="text/css" />
+    <link rel="stylesheet" href="static/style/werecars.css" type="text/css" media="screen" title="main css file" charset="utf-8">
 	<script type="text/javascript" src="static/copperlichtdata/copperlicht.js"></script>
-    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
 	<script type="text/javascript" src="static/lib/jquery-1.6.2.js"></script>
 	<script type="text/javascript" src="static/lib/apprise-1.5.min.js"></script>
 	<script type="text/javascript" src="static/lib/jquery-werecars.js"></script>
-    <link rel="stylesheet" href="static/apprise.min.css" type="text/css" />
-    <link rel="stylesheet" href="static/werecars.css" type="text/css" media="screen" title="main css file" charset="utf-8">
 </head>
 <body>
 	<div align="center" id="game_area">
 		<canvas id="3darea" width="800" height="600" style="background-color:#000000">
 		</canvas>
+		<h1 style="font-family: 'Nosifer', cursive;">Werecars</h1>
 	</div>
 	<div id="fps"></div>
 	<div id="fps-data"></div>
@@ -24,12 +26,11 @@
 	
 <script type="text/javascript">
 <!--
-
 // ==================================
 // = Nastavitve za igro in 3D pogon =
 // ==================================
 var config = [];
-config.server_ip = '192.168.0.4';
+config.server_ip = 'localhost';
 var serverip = $.urlParam('serverip');
 if(serverip) {
 	config.server_ip = serverip;
@@ -66,9 +67,9 @@ function log(str, show_debug_override) {
 }
 
 // ===========================
-// = JS Copperlicht 3D pogon =
+// = JS Copperlicht 3D scena =
 // ===========================
-var engine = startCopperLichtFromFile('3darea', 'static/copperlichtdata/nova_scena.ccbjs'), // inicializacija 3D pogona
+var engine = startCopperLichtFromFile('3darea', 'static/copperlichtdata/nova_scena.ccbjs'),
     cubeCollisionPosition = null,
     startTime = new Date(),
     count = 0,
@@ -76,10 +77,10 @@ var engine = startCopperLichtFromFile('3darea', 'static/copperlichtdata/nova_sce
     startTimeSent = null,
     countSent = 0,
     dataTimesSent = 0;
+    
 var html_fps_data = $("#fps-data")
-
-
 var html_fps = null;
+
 engine.OnAfterDrawAll = function () {
     var html_fps = $("#fps");
 

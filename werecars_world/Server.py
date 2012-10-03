@@ -219,7 +219,7 @@ class Server:
                                 zfloor[id] = ztop
                                 if client['z'] < ztop + self.m_floorDistance:
                                     if box['type'] == 2:
-                                        internal['zspeed'] += 40
+                                        internal['zspeed'] += 2
                                     elif box['type'] == 3:
                                         client['rspeed'] += 0.001
                                     elif box['type'] == 4:
@@ -248,10 +248,10 @@ class Server:
                                     sx, sy = decompose(internal['sangle'], internal['speed'])
                                     bounce = {'x':0, 'y':0}
                                     if onleft:
-                                        bounce[ax] -= 2 # default 40
+                                        bounce[ax] -= 2
                                     else:
-                                        bounce[ax] += 2 # default 40
-                                    internal['zspeed'] += 2 # default 10
+                                        bounce[ax] += 2
+                                    internal['zspeed'] += 2
                                     internal['sangle'], internal['speed'] = compose(sx + bounce['x'], sy + bounce['y'])
                                 elif box['type'] == 3:
                                     client['rspeed'] += 0.001

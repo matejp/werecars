@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-WebSocket + HTTP strežnik za igro Werecars.
-Deluje z Google Chrome 13 in Safari 5.
-Google Chrome 14 - ima novejšo implementacijo websocket protokola, ki ga tornato 2.0 server ne podpira.
+HTTP in WebSocket strežnik za igro Werecars.
 """
 import os
 import sys
@@ -37,27 +35,6 @@ if len(sys.argv) == 2:
         sys.exit(1)
         
 _server = Server(_game_level)
-
-# ========================================
-# = Echo testni http in websocket server =
-# ========================================
-class HttpEchoHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.render('static/console.html')
-
-class EchoWebsocket(tornado.websocket.WebSocketHandler):
-    def open(self):
-        Log.log('EchoWebSocket', 'open')
-        # print "open"
-
-    def on_message(self, message):
-        self.write_message(u"Echo: " + message)
-        Log.log('EchoWebSocket', message)
-        # print "message"
-
-    def on_close(self):
-        Log.log('EchoWebSocket', 'close')
-        # print "close"
 
 # ====================
 # = Pomožne funkcije =
@@ -119,10 +96,8 @@ settings = {
 
 application = tornado.web.Application([
     (r'/', HttpHandler),
-    (r'/echo/?', HttpEchoHandler),
     (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": os.getcwd()+'/static'}),
     (r'/werecars-ws', WerecarsWebsocket),
-    (r'/echo-ws', EchoWebsocket),
 ], **settings)
 
 if __name__ == "__main__":
