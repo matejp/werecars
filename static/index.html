@@ -15,7 +15,7 @@
 	<div align="center" id="game_area">
 		<canvas id="3darea" width="800" height="600" style="background-color:#000000">
 		</canvas>
-		<h1 style="font-family: 'Nosifer', cursive;">Werecars</h1>
+		<h1 style="font-family: 'Nosifer', cursive;">3D WebGL igra</h1>
 	</div>
 	<div id="fps"></div>
 	<div id="fps-data"></div>
@@ -101,7 +101,7 @@ engine.OnAfterDrawAll = function () {
         } else {
             html_fps.innerHTML = "";
         }
-        // end FPS
+        // FPS
     };
 
 engine.OnLoadingComplete = function () {
@@ -153,15 +153,12 @@ engine.OnLoadingComplete = function () {
         car2SceneNode.Visible = false;
         car3SceneNode.Visible = false;
 
-        // also, force the 3d engine to update the scene every frame
-        // scene.setRedrawMode(CL3D.Scene.REDRAW_WHEN_SCENE_CHANGED);
         scene.setRedrawMode(CL3D.Scene.REDRAW_EVERY_FRAME);
 
-
-        // add a user controlled camera
+        // kamera
         var cam = new CL3D.CameraSceneNode();
         
-        // ensure to place the camera inside the room, or it will fall out, into the endless void
+        // postavi kamero v prostor
         cam.Pos.X = 30;
         cam.Pos.Y = 10;
         cam.Pos.Z = 30;
@@ -193,36 +190,17 @@ engine.OnLoadingComplete = function () {
         // = Točkovanje =
         // ==============
         function updateScoreboard(scores) {
-            // FIX
             $("#scores").html('');
             
             for(var i=0; i<scores.length; i++) {
                 $("#scores").append(scores[i].name + ': ' + scores[i].score + '<br/>');
             }
-            
-            // var BColor = CL3D.createColor(155, 255, 255, 255),
-            //     txt_width = 256,
-            //     txt_height = 32;
-            // scores_len = scores.length;
-            // log("scores.length " + scores.length);
-            // for(var i=0; i<scores_len; i++) {
-            //     log("Scores: " + scores[i].name + " " + scores[i].score);
-            //     log(0 + " " + txt_height*i + " " + txt_width + " " + txt_height);
-            //     var score_text = new Array();
-            //     var score_text = new CL3D.Overlay2DSceneNode(engine);
-            //     // engine.getScene().getRootSceneNode().addChild(score_text);
-            //     scene.getRootSceneNode().addChild(score_text);
-            //     score_text.set2DPosition(0, txt_height*i, txt_width, txt_height);
-            //     score_text.FontName = "12;default;arial;normal;bold;true";
-            //     score_text.setText(scores[i].name + ': ' + scores[i].score);
-            //     score_text.setShowBackgroundColor(true, BColor );
-            // }
         }
         
         function createCar(id, car) {
-            // scene.getSceneNodeFromName('car1');
             log('createCar');
             
+            // scene.getSceneNodeFromName('car1');
             var carNode = scene.getSceneNodeFromName('car' + (Math.floor((Math.random()*3)+1.5))).createClone(scene.getRootSceneNode());
             // var carNode = scene.getSceneNodeFromName('car' + (car.type+1)).createClone(scene.getRootSceneNode());
             carNode.Pos.X = car.x;
@@ -258,148 +236,146 @@ engine.OnLoadingComplete = function () {
         if ("WebSocket" in window) {
             log("Poskušam se povezati...<br/>", true);
 
-            ws = new WebSocket(config.ws_server_address);
+            // Vprašaj za ime, nato se poveži s strežnikom igre
+            apprise('Vpišite vaše ime:', {'input':true}, function(myname) {
+                connectToServer(myname);
+            });
+            
+            function connectToServer(myname) {
+                ws = new WebSocket(config.ws_server_address);
 
-            ws.onopen = function () {
-                log("WebSocket odprt!", true);
-                // FIX
-                myname = prompt('Vpišite vaše ime:', 'Matej');
-                // myname = 'Matej';
-                // apprise('Vpišite vaše ime:', {'input':true}, function(myname) {
-                //     alert(myname);
-                // });
-            };
+                ws.onopen = function () {};
 
-            ws.onmessage = function (e) {
-                var data = e.data;
-                log('> ' + data);
+                ws.onmessage = function (e) {
+                    var data = e.data;
+                    log('> ' + data);
                 
-                if (config.show_fps === true) {
-                    startTimeSentNow = new Date().getTime();
-                    var diff = startTimeSentNow - startTimeSent;
-                    log('Time delay: ' + diff);
+                    if (config.show_fps === true) {
+                        startTimeSentNow = new Date().getTime();
+                        var diff = startTimeSentNow - startTimeSent;
+                        log('Time delay: ' + diff);
                 
-                    dataTimesSent += diff;
-                    countSent++;
+                        dataTimesSent += diff;
+                        countSent++;
 
-                    if (countSent === 10) {
-                        var avg_delat = dataTimesSent/countSent;
-                        html_fps_data.html("FPS: " + Math.floor(1000/avg_delat) + " delay: "+avg_delat);
-                        dataTimesSent = 0;
-                        countSent = 0;
+                        if (countSent === 10) {
+                            var avg_delat = dataTimesSent/countSent;
+                            html_fps_data.html("FPS: " + Math.floor(1000/avg_delat) + " delay: "+avg_delat);
+                            dataTimesSent = 0;
+                            countSent = 0;
+                        }
+                        startTimeSent = startTimeSentNow;
+                    } else {
+                        html_fps_data.innerHTML = "";
                     }
-                    startTimeSent = startTimeSentNow;
-                } else {
-                    html_fps_data.innerHTML = "";
-                }
                 
                 
-                try {
-                    json = jQuery.parseJSON( e.data );
-                    switch(json.type) {
-                        case 'your-id':
-                            //Pošlje moje ime strežniku
-                            my_id = json.data; //id, ki mi ga je določil strežnik
-                            order = {type:'my-name', id:my_id, data:myname};
-                            json_order = JSON.stringify(order);
-                            log('< '+json_order);
-                            ws.send(json_order);
-                        break;
-                        case 'static-boxes':
-                            log('Nalagam level');
-                            // ==============================================
-                            // = Izriše level glede na podatke, ki jih dobi =
-                            // ==============================================
-                            j = 0;
-                            static_boxes = json.data;
-                            for ( var k in static_boxes ) {
-                                j++;
-                                var cubenode = new CL3D.CubeSceneNode(static_boxes[k].size);
-                                cubenode.Pos.X = static_boxes[k].x + 10;
-                                cubenode.Pos.Y = static_boxes[k].z;
-                                cubenode.Pos.Z = static_boxes[k].y + 5;
-                                // cubenode.Selector = new CL3D.MeshTriangleSelector(cubenode.getMesh(), cubenode);
-
-                                RootSceneNode.addChild(cubenode);
-                                cubenode.getMaterial(0).Tex1 = engine.getTextureManager().getTexture("static/leveli/kocke/cube_type_"+static_boxes[k].type+".jpg", true);
-                                // log("leveli/kocke/cube_type_"+static_boxes[k].type+".jpg");
-                            }
-                            log("Level naložen. Naloženih " + j + " kock.");
-                        break;
-                        case 'start-position':
-                            cam.Pos.X = json.data.x;
-                            cam.Pos.Y = json.data.z + 4;
-                            cam.Pos.Z = json.data.y - 8;                            
-                            animator.lookAt(new CL3D.Vect3d(json.data.x, json.data.z - 8, json.data.y));
-                            
-                            log("Kamera:  x: "+json.data.x+" y: "+json.data.z+" z: "+json.data.y);
-                        break;
-                        case 'scores':
-                            updateScoreboard(json.data);
-                        break;
-                        case 'cars':
-                            var carsListTmp = carsList.slice(); //začasna kopija seznama prikazanih avtomobilov
-                            cars_data = json.data;              //podatki o vseh avtomobilih
-                            log('move cars ' + carsList);
-                            
-                            for(var id in cars_data) {
-                                var car = cars_data[id];
-                                
-                                if(jQuery.inArray( id, carsList ) === -1) {
-                                    //Avto še ni izrisan
-                                    //Ustvari nov avto in ga izriši
-                                    createCar(id, car);
-                                } else {
-                                    //Avto je že na sceni
-                                    //Premakne ga na novo pozicijo (translacija)
-                                    cars[id].Pos.X = car.x + 5; // +x zamik desno
-                                    cars[id].Pos.Y = car.z - 5; // Višina
-                                    cars[id].Pos.Z = car.y; // FIX: Poravnava sredine kroga za zaznavanje trgov z modelom
-                                    
-                                    // Rotiraj avto okoli y osi (rotacija)
-                                    cars[id].Rot = new CL3D.Vect3d(0, car.angle*57.3, 0); // car.angle*57.3 = Pretvori kot iz radianov v stopinje
-                                    $('#my-car-data').html(car.angle);
-                                    
-                                    // Premakni kamero
-                                    // Kamera sledi avtomobilu igralca
-                                    if(my_id == id) {
-                                        cam.Pos.X = cars[id].Pos.X;
-                                        if (car.z > 20 ) {
-                                            // Če avto pade čez rob mu ne sledi po tej osi
-                                            cam.Pos.Y = car.z + 12;
-                                        }
-                                        cam.Pos.Z = car.y - 8;
-                                        // cam.lookAt(new CL3D.Vect3d(cam.Pos.X, cam.Pos.Y, cam.Pos.Z));
-                                    }
-                                    
-                                    //iz začasnega seznama izbriše id že obdelanega avtomobila
-                                    carsListTmp.splice(jQuery.inArray( id, carsListTmp ), 1);
-                                }
-                            }
-                            //Seznam carsListTmp sedaj vsebuje id-je vseh avtomobilov, ki niso več v igri
-                            //Te avtomobile izbriše
-                            for(id in carsListTmp) {
-                                deleteCar(carsListTmp[id]);
-                            }
-                        break;
-                        default:
-                            log('Nepoznan ukaz!');
-                            log("type: "+json.type+" data: "+json.data);
+                    try {
+                        json = jQuery.parseJSON( e.data );
+                        switch(json.type) {
+                            case 'your-id':
+                                //Pošlje moje ime strežniku
+                                my_id = json.data; //id, ki mi ga je določil strežnik
+                                order = {type:'my-name', id:my_id, data:myname};
+                                json_order = JSON.stringify(order);
+                                log('< '+json_order);
+                                ws.send(json_order);
                             break;
+                            case 'static-boxes':
+                                log('Nalagam level');
+                                // ==============================================
+                                // = Izriše level glede na podatke, ki jih dobi =
+                                // ==============================================
+                                j = 0;
+                                static_boxes = json.data;
+                                for ( var k in static_boxes ) {
+                                    j++;
+                                    var cubenode = new CL3D.CubeSceneNode(static_boxes[k].size);
+                                    cubenode.Pos.X = static_boxes[k].x + 10;
+                                    cubenode.Pos.Y = static_boxes[k].z;
+                                    cubenode.Pos.Z = static_boxes[k].y + 5;
+
+                                    RootSceneNode.addChild(cubenode);
+                                    cubenode.getMaterial(0).Tex1 = engine.getTextureManager().getTexture("static/leveli/kocke/cube_type_"+static_boxes[k].type+".jpg", true);
+                                }
+                                log("Level naložen. Naloženih " + j + " kock.");
+                            break;
+                            case 'start-position':
+                                cam.Pos.X = json.data.x;
+                                cam.Pos.Y = json.data.z + 4;
+                                cam.Pos.Z = json.data.y - 8;                            
+                                animator.lookAt(new CL3D.Vect3d(json.data.x, json.data.z - 8, json.data.y));
+                            
+                                log("Kamera:  x: "+json.data.x+" y: "+json.data.z+" z: "+json.data.y);
+                            break;
+                            case 'scores':
+                                updateScoreboard(json.data);
+                            break;
+                            case 'cars':
+                                var carsListTmp = carsList.slice(); //začasna kopija seznama prikazanih avtomobilov
+                                cars_data = json.data;              //podatki o vseh avtomobilih
+                                log('move cars ' + carsList);
+                            
+                                for(var id in cars_data) {
+                                    var car = cars_data[id];
+                                
+                                    if(jQuery.inArray( id, carsList ) === -1) {
+                                        //Avto še ni izrisan
+                                        //Ustvari nov avto in ga izriši
+                                        createCar(id, car);
+                                    } else {
+                                        //Avto je že na sceni
+                                        //Premakne ga na novo pozicijo (translacija)
+                                        cars[id].Pos.X = car.x + 5; // +x zamik desno
+                                        cars[id].Pos.Y = car.z - 5; // Višina
+                                        cars[id].Pos.Z = car.y;
+                                    
+                                        // Rotiraj avto okoli y osi (rotacija)
+                                        cars[id].Rot = new CL3D.Vect3d(0, car.angle*57.3, 0); // car.angle*57.3 = Pretvori kot iz radianov v stopinje
+                                        $('#my-car-data').html(car.angle);
+                                    
+                                        // Premakni kamero
+                                        // Kamera sledi avtomobilu igralca
+                                        if(my_id == id) {
+                                            cam.Pos.X = cars[id].Pos.X;
+                                            if (car.z > 20 ) {
+                                                // Če avto pade čez rob mu ne sledi v globino
+                                                cam.Pos.Y = car.z + 12;
+                                            }
+                                            cam.Pos.Z = car.y - 8;
+                                            // cam.lookAt(new CL3D.Vect3d(cam.Pos.X, cam.Pos.Y, cam.Pos.Z));
+                                        }
+                                    
+                                        //iz začasnega seznama izbriše id že obdelanega avtomobila
+                                        carsListTmp.splice(jQuery.inArray( id, carsListTmp ), 1);
+                                    }
+                                }
+                                //Seznam carsListTmp sedaj vsebuje id-je vseh avtomobilov, ki niso več v igri
+                                //Te avtomobile izbriše
+                                for(id in carsListTmp) {
+                                    deleteCar(carsListTmp[id]);
+                                }
+                            break;
+                            default:
+                                log('Nepoznan ukaz!');
+                                log("type: "+json.type+" data: "+json.data);
+                                break;
+                        }
+                    } catch (e) {
+                        // not json
+                        log('Napaka: pričakoval JSON dobil: ' + data);
                     }
-                } catch (e) {
-                    // not json
-                    log('Napaka: pričakoval JSON dobil: ' + data);
-                }
-            };
+                };
 
-            ws.onclose = function () {
-                log("<br/>WebSocket zaprt!");
-            };
+                ws.onclose = function () {
+                    log("<br/>WebSocket zaprt!");
+                };
 
-            ws.onerror = function () {
-                log("Websocket napaka!");
-            };
+                ws.onerror = function () {
+                    log("Websocket napaka!");
+                };
+            } // connectToServer
+
         } else {
             apprise('Vaš brskalnik ne podpira websocket protokola.', {'animate':true});
             log("Vaš brskalnik ne podpira websocket protokola!");
@@ -418,7 +394,7 @@ document.onkeydown = function(event)
             key_space = 1;
             log('key_space keydown');
             break;
-        case 37:
+        case 39:
             //Levo
             key_left = 1;
             log('key_left keydown');
@@ -428,7 +404,7 @@ document.onkeydown = function(event)
             key_up = 1;
             log('key_up keydown');
             break;
-        case 39:
+        case 37:
             //Desno
             key_right = 1;
             log('key_right keydown');
@@ -463,7 +439,7 @@ document.onkeyup = function(event)
             key_space = 0;
             log('key_space keyup');
             break;
-        case 37:
+        case 39:
             //Levo
             key_left = 0;
             log('key_left keyup');
@@ -473,7 +449,7 @@ document.onkeyup = function(event)
             key_up = 0;
             log('key_up keyup');
             break;
-        case 39:
+        case 37:
             //Desno
             key_right = 0;
             log('key_right keyup');
@@ -492,7 +468,7 @@ document.onkeyup = function(event)
 var sendKeyStateInterval = setInterval(function() {
     startTimeSent = new Date().getTime(); // za štopanje odzivnega časa
     sendKeyState();
-}, 100); // pošlji podatke vsakih 00ms => 10x na sekundo
+}, 100); // pošlji podatke vsakih 100ms => 10x na sekundo
 
 function sendKeyState() {
     if(ws.readyState > ws.OPEN) {
@@ -504,19 +480,14 @@ function sendKeyState() {
     if(key_space==1) {new_key_state.jump=1; len++;};
     if(key_up==1) {new_key_state.up=1; len++;};
     if(key_down==1) {new_key_state.down=1; len++;};
-    // if(key_left==1) {new_key_state.left=1; len++;};
-    // if(key_right==1) {new_key_state.right=1; len++;};
     
-    // FIX: need fixing
-    if(key_left==1) {new_key_state.right=1; len++;};
-    if(key_right==1) {new_key_state.left=1; len++;};
+    if(key_left==1) {new_key_state.left=1; len++;};
+    if(key_right==1) {new_key_state.right=1; len++;};
     
-    // if(len > 0) {
-        order = {type:'key-state', id:my_id, data:new_key_state};
-        json_order = JSON.stringify(order);
-        log('< '+json_order);
-        ws.send(json_order);
-    // }
+    order = {type:'key-state', id:my_id, data:new_key_state};
+    json_order = JSON.stringify(order);
+    log('< '+json_order);
+    ws.send(json_order);
     
     key_state = new_key_state;
 }
