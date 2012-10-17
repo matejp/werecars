@@ -2,10 +2,38 @@
 	margin: 0;
 	padding: 0;
 }
-
+html {
+	background-color: black;
+}
+h1 {
+	font-family: 'Nosifer', cursive;
+	font-weight: normal;
+	padding: 0.5em;
+	line-height: 1em;
+	color: #c40c0c;
+	font-size: 45px;
+	text-shadow:0px 0px 0 rgb(172,-12,-12),
+				1px 1px 0 rgb(157,-27,-27),
+				2px 2px 0 rgb(143,-41,-41),
+				3px 3px 0 rgb(128,-56,-56),
+				4px 4px 0 rgb(114,-70,-70),
+				5px 5px 0 rgb(99,-85,-85),
+				6px 6px 0 rgb(85,-99,-99),
+				7px 7px 6px rgba(0,0,0,0.6),
+				7px 7px 1px rgba(0,0,0,0.5),
+				0px 0px 6px rgba(0,0,0,.2);
+}
 #game_area {
-	float: left;
+/*	float: left;*/
 	padding: 0 10px 10px 0;
+}
+#debugData {
+	color: white;
+}
+#debugButton {
+	padding: 10px;
+	color: white;
+	background-color: black;
 }
 #fps {
     height: 50px;
@@ -13,18 +41,18 @@
     font-size: 30px;
 }
 #debug {
-	float: left;
-	width: 300px;
-	height: 550px;
+	width: 90%;
+	height: 250px;
 	overflow: scroll;
 	border: 1px solid;
 	padding: 5px;
+	text-align: left;
 }
 #scores {
-	position: absolute;
+	position: relative;
 	font-family: 'Nosifer', cursive;
 	color: white;
-	top: 0;
-	left: 0;
+	top: -600px;
+	left: -350px;
 	padding: 10px;
 }

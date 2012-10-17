@@ -80,7 +80,7 @@ class Server:
         self.m_floorDistance = 1
         self.m_rotation_factor = 20
         self.m_carHeight = 1
-        self.m_carRadius = 3
+        self.m_carRadius = 3.9
         self.m_carSize = self.m_carRadius * 2
         self.m_boxRadius = 5
         self.m_boxSize = self.m_boxRadius * 2

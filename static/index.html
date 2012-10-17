@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Werecars</title>
+    <title>3D WebGl igra</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
 	<link href='http://fonts.googleapis.com/css?family=Nosifer&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
@@ -13,17 +13,18 @@
 </head>
 <body>
 	<div align="center" id="game_area">
-		<canvas id="3darea" width="800" height="600" style="background-color:#000000">
-		</canvas>
-		<h1 style="font-family: 'Nosifer', cursive;">3D WebGL igra</h1>
+	    <h1 style="font-family: 'Nosifer', cursive;">3D WebGL igra</h1>
+		<canvas id="3darea" width="800" height="600" style="background-color:#000000"></canvas>
+	    <div id="scores"></div>
+	    
+	    <button id="debugButton">Debug</button>
+    	<div id="debugData">
+        	<div id="fps"></div>
+        	<div id="fps-data"></div>
+        	<div id="debug"></div>
+    	</div>
 	</div>
-	<div id="fps"></div>
-	<div id="fps-data"></div>
-	<div id="scores"></div>
-	<div id="my-car-data"></div>
-	<div id="debug">
-	</div>
-	
+
 <script type="text/javascript">
 <!--
 // ==================================
@@ -167,8 +168,6 @@ engine.OnLoadingComplete = function () {
         cam.setAspectRatio(4/3); // Sets aspect ration
         cam.setFarValue(200);
         
-        // add an animator which makes the camera move by keyboard and mouse input        
-        // var animator = new CL3D.AnimatorCameraFPS(cam, engine);
         var animator = new CL3D.AnimatorCameraFPS(cam, engine);
         animator.MoveSpeed = 0.005;
         animator.RotateSpeed = 250;
@@ -180,11 +179,6 @@ engine.OnLoadingComplete = function () {
         
         scene.getRootSceneNode().addChild(cam);
         scene.setActiveCamera(cam);
-        
-        // var cam = engine.getScene().getActiveCamera();
-        // cam.getAnimatorOfType('camerafps').setLookByMouseDown = true;
-        // cam.getAnimatorOfType('camerafps').moveByMouseMove = true;
-        // log(concatObject(scene.getCollisionGeometry()));
         
         // ==============
         // = Točkovanje =
@@ -200,11 +194,10 @@ engine.OnLoadingComplete = function () {
         function createCar(id, car) {
             log('createCar');
             
-            // scene.getSceneNodeFromName('car1');
             var carNode = scene.getSceneNodeFromName('car' + (Math.floor((Math.random()*3)+1.5))).createClone(scene.getRootSceneNode());
             // var carNode = scene.getSceneNodeFromName('car' + (car.type+1)).createClone(scene.getRootSceneNode());
             carNode.Pos.X = car.x;
-            carNode.Pos.Y = car.z; // - 2;
+            carNode.Pos.Y = car.z;
             carNode.Pos.Z = car.y;
             carNode.Visible = true;
             
@@ -332,7 +325,6 @@ engine.OnLoadingComplete = function () {
                                     
                                         // Rotiraj avto okoli y osi (rotacija)
                                         cars[id].Rot = new CL3D.Vect3d(0, car.angle*57.3, 0); // car.angle*57.3 = Pretvori kot iz radianov v stopinje
-                                        $('#my-car-data').html(car.angle);
                                     
                                         // Premakni kamero
                                         // Kamera sledi avtomobilu igralca
@@ -362,7 +354,7 @@ engine.OnLoadingComplete = function () {
                                 break;
                         }
                     } catch (e) {
-                        // not json
+                        // Ni json
                         log('Napaka: pričakoval JSON dobil: ' + data);
                     }
                 };
@@ -415,20 +407,6 @@ document.onkeydown = function(event)
             log('key_down keydown');
             break;
     }
-    // return false; // onemogoči premikanje drsnika za okno brskalnika s smernimi tipkami
-    // var key = String.fromCharCode(event.keyCode);
-    // 
-    // // when pressed 'L', move the cube scene node a bit up
-    // if (key == 'F' && cubeSceneNode)
-    //   cubeSceneNode.Pos.Y += 5;
-    //   
-    // // when pressed 'G', move the cube scene node a bit down
-    // if (key == 'G' && cubeSceneNode)
-    //   cubeSceneNode.Pos.Y -= 5;
-    // 
-    // we need to call the key handler of the 3d engine as well, so that the user is
-    // able to move the camera using the keys
-    // engine.handleKeyDown(event);
 };
 
 document.onkeyup = function(event)
@@ -460,13 +438,12 @@ document.onkeyup = function(event)
             log('key_down keyup');
             break;
     }
-    // engine.handleKeyUp(event);
 };
 //==============================
 //= Timer for sending new data =
 //==============================
 var sendKeyStateInterval = setInterval(function() {
-    startTimeSent = new Date().getTime(); // za štopanje odzivnega časa
+    startTimeSent = new Date().getTime(); // za računanje odzivnega časa
     sendKeyState();
 }, 100); // pošlji podatke vsakih 100ms => 10x na sekundo
 
@@ -490,7 +467,14 @@ function sendKeyState() {
     ws.send(json_order);
     
     key_state = new_key_state;
-}
+};
+
+$(document).ready(function() {
+    $("#debugData").hide();
+    $("#debugButton").click(function () {
+      $("#debugData").slideToggle("slow");
+    });
+});
 -->
 </script>
 </body>
